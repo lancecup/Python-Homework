@@ -647,19 +647,19 @@ def generate_latex_code(summary_results, stat_titles):
         str: A string containing the LaTeX code for the summary table.
     """
     # Initialize LaTeX table structure with a floating table environment
-    latex = "\\begin{table}[htbp]\n"
-    latex += "\\hspace*{-4cm}\n"  # Add horizontal spacing for alignment
-    latex += "\\centering\n"  # Center the table on the page
-    latex += "\\renewcommand{\\arraystretch}{1.2} % Adjust row spacing\n"  # Increase row spacing for readability
-    latex += "\\setlength{\\tabcolsep}{10pt} % Adjust column spacing\n"  # Increase column spacing
+    latex_code = "\\begin{table}[htbp]\n"
+    latex_code += "\\hspace*{-4cm}\n"  # Add horizontal spacing for alignment
+    latex_code += "\\centering\n"  # Center the table on the page
+    latex_code += "\\renewcommand{\\arraystretch}{1.2} % Adjust row spacing\n"  # Increase row spacing for readability
+    latex_code += "\\setlength{\\tabcolsep}{10pt} % Adjust column spacing\n"  # Increase column spacing
 
     # Define the table format: 'l' for the first column (left-aligned) and 'c' for statistic columns (center-aligned)
-    latex += "\\begin{tabular}{|l" + "c" * len(stat_titles) + "|}\n"
-    latex += "\\hline\n"  # Add a horizontal line at the top of the table
+    latex_code += "\\begin{tabular}{|l" + "c" * len(stat_titles) + "|}\n"
+    latex_code += "\\hline\n"  # Add a horizontal line at the top of the table
 
     # Add the header row with variable name and statistic titles
-    latex += "\\textbf{Variable} & " + " & ".join(f"\\textbf{{{title}}}" for title in stat_titles.values()) + " \\\\\n"
-    latex += "\\hline\n"  # Add a horizontal line below the header
+    latex_code += "\\textbf{Variable} & " + " & ".join(f"\\textbf{{{title}}}" for title in stat_titles.values()) + " \\\\\n"
+    latex_code += "\\hline\n"  # Add a horizontal line below the header
 
     # Populate the table with data rows
     for var, stats in summary_results.items():
