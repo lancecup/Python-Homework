@@ -671,17 +671,17 @@ def generate_latex_code(summary_results, stat_titles):
             f"{stats.get(stat, ''):.2f}" if isinstance(stats.get(stat, ''), (int, float)) else str(stats.get(stat, '')) 
             for stat in stat_titles.keys()
         )
-        latex += f"{var} & {row} \\\\\n"
+        latex_code += f"{var} & {row} \\\\\n"
 
-    latex += "\\hline\n"  # Add a horizontal line at the end of the data rows
+    latex_code += "\\hline\n"  # Add a horizontal line at the end of the data rows
 
     # Close the table environment
-    latex += "\\end{tabular}\n"
-    latex += "\\caption{Summary Statistics}\n"  # Add a caption to describe the table
-    latex += "\\label{tab:summary_statistics}\n"  # Add a label for referencing the table
-    latex += "\\end{table}\n"
+    latex_code += "\\end{tabular}\n"
+    latex_code += "\\caption{Summary Statistics}\n"  # Add a caption to describe the table
+    latex_code += "\\label{tab:summary_statistics}\n"  # Add a label for referencing the table
+    latex_code += "\\end{table}\n"
 
-    return latex  # Return the LaTeX code as a string
+    return latex_code  # Return the LaTeX code as a string
 
 @app.route('/power', methods=['GET', 'POST'])
 def power():
