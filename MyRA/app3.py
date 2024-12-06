@@ -557,17 +557,18 @@ print(results.summary())
 @app.route('/summary', methods=['GET', 'POST'])
 def summary():
     """
-    Generate summary statistics for selected variables.
-    
-    Only numeric variables are allowed for summary statistics. If a categorical variable is selected,
-    an error message is displayed.
+    Generate summary statistics for selected variables in the dataset.
+
+    This route allows users to select variables and statistics (mean, median, etc.) to compute.
+    The results are displayed on the summary page, along with options to export the summary 
+    as LaTeX code or Python code for replication.
     """
     global current_dataset  # Access the globally stored dataset
     if current_dataset is None:
         # Redirect to the upload page if no dataset is loaded
         return redirect(url_for('upload'))
 
-    # Define statistic titles for numeric variables
+    # Define statistic titles for user-friendly display
     stat_titles = {
         'mean': 'Mean',
         'median': 'Median',
@@ -575,37 +576,32 @@ def summary():
         'min': 'Minimum',
         'max': 'Maximum',
         'sum': 'Sum',
-        'count': 'Count',
+        'count': 'Count'
     }
 
-    summary_results = {}  # Store processed summary statistics
-    error_message = None  # Store error messages if any
-    latex_code = generate_latex_code(summary_results, stat_titles) 
-
+    # Initialize variables for storing results and handling errors
+    summary_results = {}  # Dictionary to store computed statistics
+    error_message = None  # Error message if any issue occurs
+    latex_code = None  # LaTeX code for exporting summary
+    python_code = None  # Python code for replicating the summary
 
     if request.method == 'POST':
-        # Get user-selected variables and statistics
-        selected_vars = request.form.getlist('variables')  # Selected variables
-        stats_to_compute = request.form.getlist('stats')  # Selected statistics
+        # Retrieve user selections from the form
+        selected_vars = request.form.getlist('variables')  # Selected variables for summary
+        stats_to_compute = request.form.getlist('stats')  # Selected statistics to compute
 
+        # Validate user input
         if not selected_vars:
             error_message = "Please select at least one variable."
         elif not stats_to_compute:
             error_message = "Please select at least one statistic."
         else:
             try:
-                # Check for categorical variables in the selection
-                non_numeric_vars = [
-                    var for var in selected_vars
-                    if var in current_dataset.select_dtypes(include=['object', 'category']).columns
-                ]
-                if non_numeric_vars:
-                    error_message = (
-                        f"The following variables are not numeric and cannot be summarized: {', '.join(non_numeric_vars)}."
-                    )
-                else:
-                    # Process numeric variables only
-                    for var in selected_vars:
+                # Compute the requested statistics for each selected variable
+                for var in selected_vars:
+                    stats_map = {}
+                    # Ensure the variable is numeric before computing statistics
+                    if var in current_dataset.select_dtypes(include=['number']).columns:
                         stats_map = {
                             'mean': current_dataset[var].mean(),
                             'median': current_dataset[var].median(),
@@ -615,22 +611,35 @@ def summary():
                             'sum': current_dataset[var].sum(),
                             'count': current_dataset[var].count(),
                         }
-                        # Filter statistics based on user selection
-                        summary_results[var] = {stat: stats_map.get(stat, "") for stat in stats_to_compute}
-            except Exception as e:
-                # Catch and store any errors during processing
-                error_message = f"Error generating summary: {e}"
+                    # Filter the statistics based on user selection
+                    summary_results[var] = {stat: stats_map[stat] for stat in stats_to_compute if stat in stats_map}
 
-    # Render the summary template with results
+                # Generate LaTeX code for summary results
+                latex_code = generate_latex_code(summary_results, stat_titles)
+
+                # Generate Python code to replicate the summary
+                python_code = f"""
+import pandas as pd
+
+# Assuming 'data' is your DataFrame
+summary = data[{selected_vars}].agg({{stat: ['mean', 'median', 'std', 'min', 'max', 'sum', 'count']}})
+print(summary)
+                """
+
+            except Exception as e:
+                # Catch and display errors during summary computation
+                error_message = f"Error: {e}"
+
+    # Render the summary page template with results and options
     return render_template(
         'summary.html',
-        columns=current_dataset.columns,  # Pass dataset columns for selection
-        summary_results=summary_results,  # Pass computed statistics
-        stat_titles=stat_titles,  # Pass statistic titles for display
-        error_message=error_message,  # Pass any error messages
-        latex_code=latex_code # Pass LaTeX code
+        columns=current_dataset.columns,  # Pass dataset columns for variable selection
+        summary_results=summary_results,  # Computed summary statistics
+        stat_titles=stat_titles,  # Titles for each statistic
+        error_message=error_message,  # Display error messages if any
+        latex_code=latex_code,  # LaTeX code for exporting the summary
+        python_code=python_code  # Python code for replicating the summary
     )
-
 
 def generate_latex_code(summary_results, stat_titles):
     """
