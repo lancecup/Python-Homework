@@ -603,13 +603,13 @@ def summary():
                     # Ensure the variable is numeric before computing statistics
                     if var in current_dataset.select_dtypes(include=['number']).columns:
                         stats_map = {
-                            'mean': current_dataset[var].mean(),
-                            'median': current_dataset[var].median(),
-                            'std': current_dataset[var].std(),
-                            'min': current_dataset[var].min(),
-                            'max': current_dataset[var].max(),
-                            'sum': current_dataset[var].sum(),
-                            'count': current_dataset[var].count(),
+                            'mean': round(current_dataset[var].mean(), 2),
+                            'median': round(current_dataset[var].median(), 2),
+                            'std': round(current_dataset[var].std(), 2),
+                            'min': round(current_dataset[var].min(), 2),
+                            'max': round(current_dataset[var].max(), 2),
+                            'sum': round(current_dataset[var].sum(), 2),
+                            'count': round(current_dataset[var].count(), 2),
                         }
                     # Filter the statistics based on user selection
                     summary_results[var] = {stat: stats_map[stat] for stat in stats_to_compute if stat in stats_map}
