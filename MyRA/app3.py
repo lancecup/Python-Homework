@@ -580,6 +580,8 @@ def summary():
 
     summary_results = {}  # Store processed summary statistics
     error_message = None  # Store error messages if any
+    latex_code = generate_latex_code(summary_results, stat_titles) 
+
 
     if request.method == 'POST':
         # Get user-selected variables and statistics
@@ -626,6 +628,7 @@ def summary():
         summary_results=summary_results,  # Pass computed statistics
         stat_titles=stat_titles,  # Pass statistic titles for display
         error_message=error_message,  # Pass any error messages
+        latex_code=latex_code # Pass LaTeX code
     )
 
 
